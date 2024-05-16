@@ -1,7 +1,13 @@
+import time
+from subprocess import Popen, PIPE
 from mininet.net import Mininet
 from mininet.node import Controller, OVSSwitch
 from mininet.log import setLogLevel, info
-import time
+
+def start_iperf3_server(host):
+    server_process = host.popen('iperf3 -s -D', shell=True, stdout=PIPE, stderr=PIPE)
+    time.sleep(1)
+    return server_process
 
 def setup_topology1():
     net = Mininet(controller=Controller, switch=OVSSwitch)
@@ -14,11 +20,11 @@ def setup_topology1():
     net.start()
 
     info('*** Running iPerf3 between h1 and h2\n')
-    h1.cmd('iperf3 -s -D &')
-    time.sleep(3)  # wait for the server to start
+    server_process = start_iperf3_server(h1)
     result = h2.cmd('iperf3 -c h1 -t 10')  # client connects to the server for 10 seconds
     info('*** iPerf3 results:\n' + result + '\n')
 
+    server_process.terminate()
     net.stop()
 
 def setup_topology2():
@@ -32,11 +38,11 @@ def setup_topology2():
     net.start()
 
     info('*** Running iPerf3 between h3 and h4\n')
-    h3.cmd('iperf3 -s -D &')
-    time.sleep(3)  # wait for the server to start
+    server_process = start_iperf3_server(h3)
     result = h4.cmd('iperf3 -c h3 -t 10')  # client connects to the server for 10 seconds
     info('*** iPerf3 results:\n' + result + '\n')
 
+    server_process.terminate()
     net.stop()
 
 if __name__ == '__main__':
