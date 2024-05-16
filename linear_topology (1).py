@@ -20,7 +20,7 @@ class LinearTopology(Topo):
         self.addLink(switches[0], switches[1])
         self.addLink(switches[1], hosts[1])
 
-def perform_iperf_tests(net):
+def perform_iperf_tests(net, src_host, dst_host):
     # Opening a file in append mode to write the results
     with open('iperf_results_10_0.5', 'a') as results_file:
         durations = [10]
@@ -28,14 +28,14 @@ def perform_iperf_tests(net):
         num_runs = 1  # We can change this value to the desired number of runs
         for i, duration in enumerate(durations):
             for j in range(num_runs):
-                # Starting the iperf server on host 2
-                server = net.get('h2').popen('iperf -s')
+                # Starting the iperf server on the destination host
+                server = net.get(dst_host).popen('iperf -s')
                 # Allowing time for the server to start
                 time.sleep(1)
-                # Geting the IP address of h2
-                h2_ip = net.get('h2').IP()
-                # Running iperf test from host 1 to host 2 using the IP address and print the results
-                result = net.get('h1').cmd(f'iperf -c {h2_ip} -i 0.5 -t {duration} -b 10m -d')
+                # Geting the IP address of the destination host
+                dst_ip = net.get(dst_host).IP()
+                # Running iperf test from the source host to the destination host using the IP address and print the results
+                result = net.get(src_host).cmd(f'iperf -c {dst_ip} -i 0.5 -t {duration} -b 10m -d')
 
                 # Writing the result to the file with a separator for readability
                 results_file.write(f"Test {i+1}:\n{result}\n")
@@ -61,13 +61,14 @@ def perform_iperf_tests(net):
                 # Stoping the iperf server
                 server.terminate()
 
+
 def create_topologies():
     # Topology 1
     topo1 = LinearTopology(['h1', 'h2'], ['s1', 's2'])
     net1 = Mininet(topo1)
     net1.start()
     print("Topology 1 created and tests started")
-    perform_iperf_tests(net1)
+    perform_iperf_tests(net1, 'h1', 'h2')  # Passing 'h1' as the source host and 'h2' as the destination host
     net1.stop()
 
     # Topology 2
@@ -75,9 +76,5 @@ def create_topologies():
     net2 = Mininet(topo2)
     net2.start()
     print("Topology 2 created and tests started")
-    perform_iperf_tests(net2)
+    perform_iperf_tests(net2, 'h3', 'h4')  # Passing 'h3' as the source host and 'h4' as the destination host
     net2.stop()
-
-if __name__ == '__main__':
-    setLogLevel('info')
-    create_topologies()
