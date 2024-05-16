@@ -9,9 +9,9 @@ def calculate_data_transmitted(ping_results, packet_size):
     """Calculate the data transmitted based on ping results and packet size."""
     transmitted, received = 0, 0
     for result in ping_results:
-        if 'packets transmitted' in result:
-            transmitted += int(result.split()[0])
-            received += int(result.split()[3])
+        result = result[1]  # Access the ping result dictionary
+        transmitted += result['sent']
+        received += result['received']
     # Include the ICMP data size and ICMP header
     data_transmitted = transmitted * (packet_size + 8)  # in bytes, adding ICMP header size
     data_received = received * (packet_size + 8)  # in bytes
@@ -28,7 +28,7 @@ def setup_topology1():
     net.start()
 
     packet_size = 56  # Set the desired ICMP data size
-    results = net.ping([h1, h2], timeout='10', size=packet_size)
+    results = net.pingFull([h1, h2], timeout='10', args='-s %d' % packet_size)
     data_transmitted, data_received = calculate_data_transmitted(results, packet_size)
     info(f'*** Data transmitted: {data_transmitted} bytes, Data received: {data_received} bytes\n')
 
@@ -45,7 +45,7 @@ def setup_topology2():
     net.start()
 
     packet_size = 56  # Set the desired ICMP data size
-    results = net.ping([h3, h4], timeout='10', size=packet_size)
+    results = net.pingFull([h3, h4], timeout='10', args='-s %d' % packet_size)
     data_transmitted, data_received = calculate_data_transmitted(results, packet_size)
     info(f'*** Data transmitted: {data_transmitted} bytes, Data received: {data_received} bytes\n')
 
