@@ -15,7 +15,7 @@ def setup_topology1():
 
     info('*** Running iPerf3 between h1 and h2\n')
     h1.cmd('iperf3 -s -D &')
-    time.sleep(1)  # wait for the server to start
+    time.sleep(3)  # wait for the server to start
     result = h2.cmd('iperf3 -c h1 -t 10')  # client connects to the server for 10 seconds
     info('*** iPerf3 results:\n' + result + '\n')
 
@@ -33,7 +33,7 @@ def setup_topology2():
 
     info('*** Running iPerf3 between h3 and h4\n')
     h3.cmd('iperf3 -s -D &')
-    time.sleep(1)  # wait for the server to start
+    time.sleep(3)  # wait for the server to start
     result = h4.cmd('iperf3 -c h3 -t 10')  # client connects to the server for 10 seconds
     info('*** iPerf3 results:\n' + result + '\n')
 
