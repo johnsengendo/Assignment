@@ -1,7 +1,3 @@
-
-'''
-Performing imports for Mininet-based network simulation:
-'''
 from mininet.topo import Topo
 from mininet.net import Mininet
 from mininet.cli import CLI
@@ -10,36 +6,31 @@ import time
 import re
 
 class LinearTopology(Topo):
-    def __init__(self):
+    def __init__(self, hosts, switches, controller):
         Topo.__init__(self)
 
         # Adding nodes to the topology
-        switch1 = self.addSwitch('s1')
-        switch2 = self.addSwitch('s2')
-        host1 = self.addHost('h1')
-        host2 = self.addHost('h2')
+        for i, host in enumerate(hosts):
+            self.addHost(host)
+        for i, switch in enumerate(switches):
+            self.addSwitch(switch)
+        self.addController(controller)
 
         # Adding links between the nodes
-        self.addLink(host1, switch1)
-        self.addLink(switch1, switch2)
-        self.addLink(switch2, host2)
+        self.addLink(hosts[0], switches[0])
+        self.addLink(switches[0], switches[1])
+        self.addLink(switches[1], hosts[1])
 
-def create_linear_topology():
-    # Creating an instance of the linear topology
-    topo = LinearTopology()
+        # Connecting switches to the controller
+        for switch in switches:
+            self.addLink(switch, controller)
 
-    # Starting the Mininet network using the created topology
-    net = Mininet(topo)
-
-    # Starting the network
-    net.start()
-
-    # Running iperf multiple times between the hosts
+def perform_iperf_tests(net):
     # Opening a file in append mode to write the results
     with open('iperf_results_10_0.5', 'a') as results_file:
         durations = [10]
-        
-        num_runs = 1 # We can change this value to the desired number of runs
+
+        num_runs = 1  # We can change this value to the desired number of runs
         for i, duration in enumerate(durations):
             for j in range(num_runs):
                 # Starting the iperf server on host 2
@@ -75,11 +66,25 @@ def create_linear_topology():
                 # Stoping the iperf server
                 server.terminate()
 
-    # Opening the Mininet command line interface
-    CLI(net)
-    # Stopping the network once the CLI is closed
-    net.stop()
+def create_topologies():
+    # Topology 1
+    topo1 = LinearTopology(['h1', 'h2'], ['s1', 's2'], 'c1')
+    net1 = Mininet(topo1, controller=lambda name: None, switch=lambda name: None)
+    net1.addController('c1', controller=None, ip='127.0.0.1', port=6633)
+    net1.start()
+    print("Topology 1 created and tests started")
+    perform_iperf_tests(net1)
+    net1.stop()
+
+    # Topology 2
+    topo2 = LinearTopology(['h3', 'h4'], ['s3', 's4'], 'c2')
+    net2 = Mininet(topo2, controller=lambda name: None, switch=lambda name: None)
+    net2.addController('c2', controller=None, ip='127.0.0.1', port=6653)
+    net2.start()
+    print("Topology 2 created and tests started")
+    perform_iperf_tests(net2)
+    net2.stop()
 
 if __name__ == '__main__':
     setLogLevel('info')
-    create_linear_topology()
+    create_topologies()
