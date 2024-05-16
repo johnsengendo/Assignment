@@ -78,3 +78,7 @@ def create_topologies():
     print("Topology 2 created and tests started")
     perform_iperf_tests(net2, 'h3', 'h4')  # Passing 'h3' as the source host and 'h4' as the destination host
     net2.stop()
+
+if __name__ == '__main__':
+    setLogLevel('info')
+    create_topologies()
