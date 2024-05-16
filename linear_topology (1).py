@@ -6,7 +6,7 @@ import time
 import re
 
 class LinearTopology(Topo):
-    def __init__(self, hosts, switches):
+    def __init__(self, hosts, switches, bandwidth='10mbps'):
         Topo.__init__(self)
 
         # Adding nodes to the topology
@@ -16,9 +16,10 @@ class LinearTopology(Topo):
             self.addSwitch(switch)
 
         # Adding links between the nodes
-        self.addLink(hosts[0], switches[0])
-        self.addLink(switches[0], switches[1])
-        self.addLink(switches[1], hosts[1])
+        self.addLink(hosts[0], switches[0], bw=bandwidth)
+        self.addLink(switches[0], switches[1], bw=bandwidth)
+        self.addLink(switches[1], hosts[1], bw=bandwidth)
+
 
 def perform_iperf_tests(net, src_host, dst_host):
     # Opening a file in append mode to write the results
@@ -64,20 +65,21 @@ def perform_iperf_tests(net, src_host, dst_host):
 
 def create_topologies():
     # Topology 1
-    topo1 = LinearTopology(['h1', 'h2'], ['s1', 's2'])
+    topo1 = LinearTopology(['h1', 'h2'], ['s1', 's2'], '100mbps')  # Specifying a bandwidth of 100mbps
     net1 = Mininet(topo1)
     net1.start()
     print("Topology 1 created and tests started")
-    perform_iperf_tests(net1, 'h1', 'h2')  # Passing 'h1' as the source host and 'h2' as the destination host
+    perform_iperf_tests(net1, 'h1', 'h2')
     net1.stop()
 
     # Topology 2
-    topo2 = LinearTopology(['h3', 'h4'], ['s3', 's4'])
+    topo2 = LinearTopology(['h3', 'h4'], ['s3', 's4'])  # Using the default bandwidth of 10mbps
     net2 = Mininet(topo2)
     net2.start()
     print("Topology 2 created and tests started")
-    perform_iperf_tests(net2, 'h3', 'h4')  # Passing 'h3' as the source host and 'h4' as the destination host
+    perform_iperf_tests(net2, 'h3', 'h4')
     net2.stop()
+
 
 if __name__ == '__main__':
     setLogLevel('info')
