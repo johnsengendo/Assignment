@@ -6,7 +6,7 @@ import time
 import re
 
 class LinearTopology(Topo):
-    def __init__(self, hosts, switches, controller):
+    def __init__(self, hosts, switches):
         Topo.__init__(self)
 
         # Adding nodes to the topology
@@ -14,16 +14,11 @@ class LinearTopology(Topo):
             self.addHost(host)
         for i, switch in enumerate(switches):
             self.addSwitch(switch)
-        self.addController(controller)
 
         # Adding links between the nodes
         self.addLink(hosts[0], switches[0])
         self.addLink(switches[0], switches[1])
         self.addLink(switches[1], hosts[1])
-
-        # Connecting switches to the controller
-        for switch in switches:
-            self.addLink(switch, controller)
 
 def perform_iperf_tests(net):
     # Opening a file in append mode to write the results
@@ -68,18 +63,16 @@ def perform_iperf_tests(net):
 
 def create_topologies():
     # Topology 1
-    topo1 = LinearTopology(['h1', 'h2'], ['s1', 's2'], 'c1')
-    net1 = Mininet(topo1, controller=lambda name: None, switch=lambda name: None)
-    net1.addController('c1', controller=None, ip='127.0.0.1', port=6633)
+    topo1 = LinearTopology(['h1', 'h2'], ['s1', 's2'])
+    net1 = Mininet(topo1)
     net1.start()
     print("Topology 1 created and tests started")
     perform_iperf_tests(net1)
     net1.stop()
 
     # Topology 2
-    topo2 = LinearTopology(['h3', 'h4'], ['s3', 's4'], 'c2')
-    net2 = Mininet(topo2, controller=lambda name: None, switch=lambda name: None)
-    net2.addController('c2', controller=None, ip='127.0.0.1', port=6653)
+    topo2 = LinearTopology(['h3', 'h4'], ['s3', 's4'])
+    net2 = Mininet(topo2)
     net2.start()
     print("Topology 2 created and tests started")
     perform_iperf_tests(net2)
