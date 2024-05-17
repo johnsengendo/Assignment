@@ -78,8 +78,8 @@ def create_topologies():
     print("Topology 1 created and tests started")
 
     # Adjusting the bandwidth of the link between the two switches from the controller
-    link = (topo1.get('s1'), topo1.get('s2'))
-    topo1.set_link_bandwidth(link, '50mbps')
+    link = (net1.get('s1'), net1.get('s2'))
+    net1.configLink(link, bw='50mbps')
 
     perform_iperf_tests(net1, 'h1', 'h2')
     net1.stop()
