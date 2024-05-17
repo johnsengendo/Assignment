@@ -14,7 +14,7 @@ class LinearTopology(Topo):
         for i, host in enumerate(hosts):
             self.addHost(host)
         for i, switch in enumerate(switches):
-            self.addSwitch(switch)
+            self.addSwitch(switch, cls=OVSKernelSwitch)  # Using OVSKernelSwitch instead of Switch
 
         # Adding links between the nodes
         self.addLink(hosts[0], switches[0], bw=bandwidth)
