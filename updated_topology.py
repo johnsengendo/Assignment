@@ -4,7 +4,7 @@ from mininet.cli import CLI
 from mininet.log import setLogLevel
 import time
 import re
-from mininet.node import Controller
+from mininet.node import Controller, OVSKernelSwitch
 
 class LinearTopology(Topo):
     def __init__(self, hosts, switches, bandwidth='10mbps'):
@@ -65,8 +65,8 @@ def perform_iperf_tests(net, src_host, dst_host):
 def create_topologies():
     # Topology 1
     topo1 = LinearTopology(['h1', 'h2'], ['s1', 's2'], '100mbps')  # Specifying a bandwidth of 100mbps
-    controller1 = Controller(name='c1', ip='192.168.1.100', port=6633)  # Create a controller object for topology 1 with a unique IP and port
-    net1 = Mininet(topo=topo1, controller=controller1)  # Pass the controller object as an argument to the Mininet constructor
+    controller1 = Controller(name='c1', ip='127.0.0.1', port=6633)
+    net1 = Mininet(topo=topo1, controller=controller1)
     net1.start()
     print("Topology 1 created and tests started")
     perform_iperf_tests(net1, 'h1', 'h2')
@@ -74,8 +74,8 @@ def create_topologies():
 
     # Topology 2
     topo2 = LinearTopology(['h3', 'h4'], ['s3', 's4'])  # Using the default bandwidth of 10mbps
-    controller2 = Controller(name='c2', ip='192.168.1.101', port=6634)  # Create a controller object for topology 2 with a unique IP and port
-    net2 = Mininet(topo=topo2, controller=controller2)  # Pass the controller object as an argument to the Mininet constructor
+    controller2 = Controller(name='c2', ip='127.0.0.1', port=6634)
+    net2 = Mininet(topo=topo2, controller=controller2)
     net2.start()
     print("Topology 2 created and tests started")
     perform_iperf_tests(net2, 'h3', 'h4')
